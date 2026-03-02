@@ -79,3 +79,89 @@ Build a production‑structured personal agent platform that accepts natural‑l
 - Provide a final summary back to the user channel.
 
 If you want, I can convert this into a formal system requirements doc, or move directly to implementing Phase 1 in code.
+
+
+Here are two things you asked for: how to reset GitHub credentials, and the exact steps that led to a successful SSH connection and push.
+
+**Reset GitHub credentials (Windows + Git Bash)**
+
+If you used HTTPS + PAT before:
+1. Open Windows Credential Manager.
+2. Go to Windows Credentials.
+3. Remove entries for `github.com` and `git:https://github.com`.
+4. Next push will ask for credentials again.
+
+If you are using SSH and want to reset keys:
+1. Remove existing keys if you want a fresh start:
+   ```bash
+   rm ~/.ssh/id_ed25519
+   rm ~/.ssh/id_ed25519.pub
+   ```
+2. Generate new key:
+   ```bash
+   ssh-keygen -t ed25519 -C "you@example.com"
+   ```
+3. Add key to agent:
+   ```bash
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/id_ed25519
+   ```
+4. Add the new public key to GitHub:
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+
+**Your successful connection and push flow (the steps you followed)**
+
+1. Set git identity:
+   ```bash
+   git config --global user.name "kushal-a11y"
+   git config --global user.email "kushalstcet666@gmail.com"
+   ```
+
+2. Created SSH key:
+   ```bash
+   ssh-keygen -t ed25519 -C "kushalstcet666@gmail.com"
+   ```
+
+3. Started agent:
+   ```bash
+   eval "$(ssh-agent -s)"
+   ```
+
+4. Copied public key and added to GitHub:
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+
+5. Verified SSH auth:
+   ```bash
+   ssh -T git@github.com
+   ```
+
+6. Set remote to SSH:
+   ```bash
+   git remote set-url origin git@github.com:kushal-a11y/ClawOpsAIAgent.git
+   ```
+
+7. Added and committed files:
+   ```bash
+   git add .
+   git commit -m "Initial agent modules added(Discord only)"
+   ```
+
+8. Renamed branch to main:
+   ```bash
+   git branch -M main
+   ```
+
+9. Pulled remote history to resolve non‑fast‑forward, then pushed:
+   ```bash
+   git pull --rebase origin main
+   # resolve conflicts if any, then:
+   git add .
+   git rebase --continue
+   git push -u origin main
+   ```
+
+That’s the full path from clean machine to a successful GitHub push using SSH.
